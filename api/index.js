@@ -11,7 +11,7 @@ mongoose.connect(process.env.MONGO_URL).then(()=>{
     console.log('fail to conect to database')
 })
 const app =express();
-app.use(express.json()) // to llow jso data
+app.use(express.json()) // to allow json data
 app.listen(3000, ()=>{
     console.log('server ruinning on 3000');
 

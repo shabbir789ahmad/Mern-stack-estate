@@ -1,11 +1,15 @@
 import { useState } from "react";
 import {Link, useNavigate} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signInStart , signInSuccess, signInFailure } from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
+
 
 export default function SignUp() {
   const [formData, setFormData] = useState({})
-  const [error,  setError] = useState(null)
-  const [loading,  setLoading] = useState(false)
+  const {loading, error} = useSelector((state)=>state.user)
   const navigate = useNavigate()
+  const dispatch = useDispatch();
   const handleChange=(e)=>{
     setFormData(
       {
@@ -18,8 +22,8 @@ export default function SignUp() {
   const handleSubmit= async (e)=>{
     e.preventDefault();
     try{
-        setLoading(true)
-        const res = await fetch("/api/auth/signup", 
+        dispatch(signInStart);
+        const res = await fetch("/api/auth/signin", 
         {
           method: 'POST',
           headers : { 'Content-Type' : 'application/json'},
@@ -28,35 +32,34 @@ export default function SignUp() {
         const data =await res.json();
         if(data.success == false)
         {
-          setLoading(false)
-          setError(data.message)
+          dispatch(signInFailure(data.message))
           return;
         }
-        setLoading(false)
-        setError(null)
-        navigate('/sign-in')
+        
+        dispatch(signInSuccess(data))
+        navigate('/')
       }catch(error)
       {
-          setLoading(false)
-          setError(error.message)
+        dispatch(signInFailure(error.message))
       }  
   }
   // end
   return (
     <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl text-center font-semibold my-7">Sign UP</h1>
+      <h1 className="text-3xl text-center font-semibold my-7">Sign in</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input type="email" onChange={handleChange} placeholder="email" className="border p-3 rounded-lg" id="email" />
-        <input type="password" onChange={handleChange} placeholder="password" className="border p-3 rounded-lg" id="password" />
+        <input type="email" onChange={handleChange} placeholder="Email" className="border p-3 rounded-lg" id="email" />
+        <input type="password" onChange={handleChange} placeholder="Password" className="border p-3 rounded-lg" id="password" />
         <button disabled={loading} className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
         {loading? "loading..." : 'Sign in'}
         </button>
+        <OAuth/>
       </form>
       <div className="flex gap-2 mt-5">
-        <p>Have an account</p>
-        <Link to="{sign-in}">
+        <p>Dont have an account</p>
+        <Link to={'/sign-up'}>
           <span className="text-blue-700 hover:opacity-80 ">
-            Sign in
+            Sign Up
           </span>
         </Link>
       </div>
